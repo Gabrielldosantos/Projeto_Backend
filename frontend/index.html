@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho DevOps - Frontend</title>
+    <!-- Carregar o Tailwind CSS para um estilo rápido -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para o loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-4 shadow-md">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">Frontend - Trabalho DevOps</h1>
+        </div>
+    </header>
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Secção de Login (Inicialmente visível) -->
+        <section id="login-section" class="bg-white p-6 rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Login</h2>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+                    <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="usuario@exemplo.com">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Senha:</label>
+                    <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="senha123">
+                </div>
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <span id="login-text">Entrar</span>
+                    <div id="login-loader" class="loader hidden"></div>
+                </button>
+                <p id="login-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                <p class="text-sm text-gray-600">Dica: Use o `/register` no Swagger para criar um utilizador primeiro.</p>
+            </form>
+        </section>
+
+        <!-- Secção de Professores (Inicialmente escondida) -->
+        <section id="professores-section" class="hidden mt-8">
+            
+            <!-- Formulário para Adicionar Professor -->
+            <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Adicionar Novo Professor</h2>
+                <form id="add-professor-form" class="space-y-4">
+                    <div>
+                        <label for="prof-nome" class="block text-sm font-medium text-gray-700">Nome do Professor:</label>
+                        <input type="text" id="prof-nome" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Dr. Silva">
+                    </div>
+                    <div>
+                        <label for="prof-materia" class="block text-sm font-medium text-gray-700">Matéria:</label>
+                        <input type="text" id="prof-materia" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Cálculo I">
+                    </div>
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <span id="add-text">Adicionar Professor</span>
+                        <div id="add-loader" class="loader hidden"></div>
+                    </button>
+                    <p id="add-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                </form>
+            </div>
+
+            <!-- Lista de Professores -->
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Lista de Professores</h2>
+                <div id="professores-loader" class="loader mx-auto my-4"></div>
+                <p id="professores-error" class="text-red-500 text-sm mt-2 hidden"></p>
+                <ul id="professores-list" class="space-y-3">
+                    <!-- A lista será preenchida pelo JavaScript -->
+                </ul>
+            </div>
+
+        </section>
+    </div>
+
+    <script>
+        const API_URL_BASE = "https://projeto-backend-zw5n.onrender.com";
+
+        let jwtToken = null;
+
+        const loginSection = document.getElementById('login-section');
+        const professoresSection = document.getElementById('professores-section');
+        const loginForm = document.getElementById('login-form');
+        const loginError = document.getElementById('login-error');
+        const loginButtonText = document.getElementById('login-text');
+        const loginLoader = document.getElementById('login-loader');
+        
+        const professoresList = document.getElementById('professores-list');
+        const professoresLoader = document.getElementById('professores-loader');
+        const professoresError = document.getElementById('professores-error');
+        
+        const addProfessorForm = document.getElementById('add-professor-form');
+        const addError = document.getElementById('add-error');
+        const addButtonText = document.getElementById('add-text');
+        const addLoader = document.getElementById('add-loader');
+
+        // --- LÓGICA DE LOGIN ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (API_URL_BASE === "COLOQUE_AQUI_A_SUA_URL_DO_RENDER") {
+                alert("ERRO: Você esqueceu de configurar a 'API_URL_BASE' no ficheiro frontend/index.html!");
+                return;
+            }
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Mostrar loader e esconder texto no botão
+            loginButtonText.classList.add('hidden');
+            loginLoader.classList.remove('hidden');
+            loginError.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_URL_BASE}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Credenciais inválidas');
+                }
+
+                // SUCESSO!
+                jwtToken = data.token; // Guardar o token
+                // Esconder login, mostrar professores
+                loginSection.classList.add('hidden');
+                professoresSection.classList.remove('hidden');
+                
+                // Buscar professores
+                await buscarProfessores();
+
+            } catch (error) {
+                loginError.textContent = `Erro no login: ${error.message}`;
+                loginError.classList.remove('hidden');
+            } finally {
+                // Esconder loader e mostrar texto
+                loginButtonText.classList.remove('hidden');
+                loginLoader.classList.add('hidden');
+            }
+        });
+
+        // --- LÓGICA DE BUSCAR PROFESSORES ---
+        async function buscarProfessores() {
+            if (!jwtToken) return;
+
+            professoresLoader.classList.remove('hidden');
+            professoresError.classList.add('hidden');
+            professoresList.innerHTML = ''; // Limpar lista antiga
+
+            try {
+                const response = await fetch(`${API_URL_BASE}/professores`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`
+                    }
+                });
+
+                if (response.status === 401) {
+                    throw new Error('Token inválido ou expirado. Faça login novamente.');
+                }
+                if (!response.ok) {
+                    throw new Error('Não foi possível buscar os professores.');
+                }
+
+                const professores = await response.json();
+
+                if (professores.length === 0) {
+                    professoresList.innerHTML = '<li class="text-gray-500">Nenhum professor cadastrado.</li>';
+                } else {
+                    professores.forEach(prof => {
+                        const li = document.createElement('li');
+                        li.className = 'p-3 bg-gray-50 rounded-md border flex justify-between items-center';
+                        li.innerHTML = `
+                            <span class="font-medium">${prof.nome}</span>
+                            <span class="text-sm text-gray-600">${prof.materia}</span>
+                        `;
+                        professoresList.appendChild(li);
+                    });
+                }
+
+            } catch (error) {
+                professoresError.textContent = `Erro: ${error.message}`;
+                professoresError.classList.remove('hidden');
+                if (error.message.includes('Token')) {
+                    // Se o token expirou, forçar o logout
+                    setTimeout(() => {
+                        jwtToken = null;
+                        loginSection.classList.remove('hidden');
+                        professoresSection.classList.add('hidden');
+                    }, 3000);
+                }
+            } finally {
+                professoresLoader.classList.add('hidden');
+            }
+        }
+
+        // --- LÓGICA DE ADICIONAR PROFESSOR ---
+        addProfessorForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!jwtToken) return;
+
+            const nome = document.getElementById('prof-nome').value;
+            const materia = document.getElementById('prof-materia').value;
+
+            addButtonText.classList.add('hidden');
+            addLoader.classList.remove('hidden');
+            addError.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${API_URL_BASE}/professores`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`
+                    },
+                    body: JSON.stringify({ nome, materia })
+                });
+                
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Erro ao adicionar professor');
+                }
+
+                // Sucesso! Limpar formulário e recarregar lista
+                document.getElementById('prof-nome').value = '';
+                document.getElementById('prof-materia').value = '';
+                await buscarProfessores(); // Atualizar a lista
+
+            } catch (error) {
+                addError.textContent = `Erro: ${error.message}`;
+                addError.classList.remove('hidden');
+            } finally {
+                addButtonText.classList.remove('hidden');
+                addLoader.classList.add('hidden');
+            }
+        });
+
+    </script>
+
+</body>
+</html>
