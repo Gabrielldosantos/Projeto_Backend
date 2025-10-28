@@ -1,0 +1,3 @@
+Este ficheiro existe apenas para garantir que o Git cria a pasta 'data' no repositório.
+
+O banco de dados 'database.sqlite' (que está nesta pasta) será ignorado pelo .gitignore.

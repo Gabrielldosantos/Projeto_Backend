@@ -1,0 +1,16 @@
+Ignora a pasta de módulos, pois o container vai instalar a sua
+
+node_modules
+
+Ignora a pasta de build (vamos gerar ela DENTRO do container)
+
+dist
+
+Ignora o banco de dados local (vamos usar um 'volume' para isso)
+
+data/database.sqlite
+
+Arquivos de log e ambiente
+
+npm-debug.log
+.env

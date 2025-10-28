@@ -1,0 +1,22 @@
+Dependências do Node.js
+
+node_modules/
+
+Pasta de build (ficheiros JavaScript compilados)
+
+dist/
+
+Banco de dados local (IMPORTANTE)
+
+Não queremos enviar o nosso banco de teste para a nuvem
+
+data/database.sqlite
+
+Logs do NPM
+
+npm-debug.log*
+*.log
+
+Ficheiros de ambiente (que contêm segredos)
+
+.env
