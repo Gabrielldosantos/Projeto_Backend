@@ -66,7 +66,7 @@ AppDataSource.initialize()
      *         description: Mensagem "API funcionando!"
      */
     app.get("/", (req: Request, res: Response) => {
-      res.send("API funcionando!");
+      res.send('API 100% DEPLOYADA E FUNCIONANDO!');
     });
 
     /**
