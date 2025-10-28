@@ -1,0 +1,40 @@
+# Nome do "robô" (workflow)
+name: Deploy Automático para o Render
+
+# "Gatilho": O que ativa o robô?
+on:
+  push:
+    branches: [ "main" ] # Ativar sempre que houver um "push" para a branch "main"
+
+jobs:
+  # O trabalho principal: construir, enviar e publicar
+  build-and-deploy:
+    runs-on: ubuntu-latest # O robô vai correr num computador virtual com Ubuntu
+
+    steps:
+      # 1. Baixar o código do GitHub para o computador virtual
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Fazer login no Docker Hub
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # Usa o segredo que criámos
+          password: ${{ secrets.DOCKERHUB_TOKEN }}    # Usa o segredo que criámos
+
+      # 3. Construir a imagem Docker e enviar para o Docker Hub
+      - name: Construir e enviar imagem Docker
+        uses: docker/build-push-action@v6
+        with:
+          context: . # O "contexto" é a raiz, onde está o Dockerfile
+          push: true # "push: true" significa ENVIAR para o Docker Hub
+          tags: gabrielldosantos/projeto_backend:latest # O nome da nossa imagem
+          # Nota: O nome "gabrielldosantos/projeto_backend" TEM de ser o mesmo que você pôs no Render
+
+      # 4. "Apertar o botão" do Render para ele fazer o deploy
+      - name: Avisar o Render (Trigger Deploy Hook)
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+          # "curl" é um comando que "clica" no URL secreto do Render que nós guardámos
+
