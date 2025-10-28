@@ -1,132 +1,191 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trabalho DevOps - Frontend</title>
-    <!-- Carregar o Tailwind CSS para um estilo rápido -->
+    <title>Frontend - Trabalho DevOps</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuração de fontes -->
     <style>
-        /* Estilo para o loader */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
     </style>
 </head>
-<body class="bg-gray-100 font-sans antialiased">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 shadow-md">
-        <div class="container mx-auto">
-            <h1 class="text-2xl font-bold">Frontend - Trabalho DevOps</h1>
-        </div>
-    </header>
-
-    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-
-        <!-- Secção de Login (Inicialmente visível) -->
-        <section id="login-section" class="bg-white p-6 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Login</h2>
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
-                    <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="usuario@exemplo.com">
-                </div>
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Senha:</label>
-                    <input type="password" id="password" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="senha123">
-                </div>
-                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span id="login-text">Entrar</span>
-                    <div id="login-loader" class="loader hidden"></div>
-                </button>
-                <p id="login-error" class="text-red-500 text-sm mt-2 hidden"></p>
-                <p class="text-sm text-gray-600">Dica: Use o `/register` no Swagger para criar um utilizador primeiro.</p>
-            </form>
-        </section>
-
-        <!-- Secção de Professores (Inicialmente escondida) -->
-        <section id="professores-section" class="hidden mt-8">
-            
-            <!-- Formulário para Adicionar Professor -->
-            <div class="bg-white p-6 rounded-lg shadow-lg mb-8">
-                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Adicionar Novo Professor</h2>
-                <form id="add-professor-form" class="space-y-4">
-                    <div>
-                        <label for="prof-nome" class="block text-sm font-medium text-gray-700">Nome do Professor:</label>
-                        <input type="text" id="prof-nome" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Dr. Silva">
-                    </div>
-                    <div>
-                        <label for="prof-materia" class="block text-sm font-medium text-gray-700">Matéria:</label>
-                        <input type="text" id="prof-materia" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="Cálculo I">
-                    </div>
-                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        <span id="add-text">Adicionar Professor</span>
-                        <div id="add-loader" class="loader hidden"></div>
-                    </button>
-                    <p id="add-error" class="text-red-500 text-sm mt-2 hidden"></p>
-                </form>
-            </div>
-
-            <!-- Lista de Professores -->
-            <div class="bg-white p-6 rounded-lg shadow-lg">
-                <h2 class="text-2xl font-semibold mb-4 border-b pb-2">Lista de Professores</h2>
-                <div id="professores-loader" class="loader mx-auto my-4"></div>
-                <p id="professores-error" class="text-red-500 text-sm mt-2 hidden"></p>
-                <ul id="professores-list" class="space-y-3">
-                    <!-- A lista será preenchida pelo JavaScript -->
-                </ul>
-            </div>
-
-        </section>
+    <!-- Container Principal do App -->
+    <div id="app-container" class="w-full max-w-4xl bg-white shadow-xl rounded-xl p-8 transition-all duration-500">
+        <!-- O Conteúdo será injetado aqui pelo JavaScript -->
     </div>
 
     <script>
-        const API_URL_BASE = "https://projeto-backend-zw5n.onrender.com";
-
-        let jwtToken = null;
-
-        const loginSection = document.getElementById('login-section');
-        const professoresSection = document.getElementById('professores-section');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const loginButtonText = document.getElementById('login-text');
-        const loginLoader = document.getElementById('login-loader');
+        // Variável global para guardar o token JWT
+        let jwtToken = localStorage.getItem('jwtToken'); 
         
-        const professoresList = document.getElementById('professores-list');
-        const professoresLoader = document.getElementById('professores-loader');
-        const professoresError = document.getElementById('professores-error');
-        
-        const addProfessorForm = document.getElementById('add-professor-form');
-        const addError = document.getElementById('add-error');
-        const addButtonText = document.getElementById('add-text');
-        const addLoader = document.getElementById('add-loader');
+        // --- FUNÇÕES DE RENDERIZAÇÃO DE UI ---
 
-        // --- LÓGICA DE LOGIN ---
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        /**
+         * Renderiza o formulário de Login e Registro.
+         */
+        function renderAuthForm(message = '', isError = false) {
+            const container = document.getElementById('app-container');
             
-            if (API_URL_BASE === "COLOQUE_AQUI_A_SUA_URL_DO_RENDER") {
-                alert("ERRO: Você esqueceu de configurar a 'API_URL_BASE' no ficheiro frontend/index.html!");
+            // Define o estilo da mensagem
+            let messageStyle = '';
+            if (message) {
+                messageStyle = isError 
+                    ? 'text-red-600 bg-red-100 border-red-200' 
+                    : 'text-green-600 bg-green-100 border-green-200';
+            }
+
+            container.innerHTML = `
+                <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Frontend - Trabalho DevOps</h1>
+                
+                <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-md border border-gray-200">
+                    <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Login</h2>
+                    
+                    ${message ? `<div class="p-3 mb-4 rounded-lg border text-sm font-medium ${messageStyle}">${message}</div>` : ''}
+
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                            <input type="email" id="email" name="email" value="usuario@exemplo.com" required 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="usuario@exemplo.com">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha:</label>
+                            <input type="password" id="password" name="password" value="senha123" required 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="********">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md">
+                            Entrar
+                        </button>
+                    </form>
+                    
+                    <p class="text-center text-sm text-gray-500 mt-4">
+                        Dica: Use o seu Swagger da API (o link que tem /api-docs) para criar um utilizador primeiro.
+                        <button id="registerButton" class="text-blue-600 hover:text-blue-800 font-medium ml-1">
+                            Ou clique aqui para registrar.
+                        </button>
+                    </p>
+                </div>
+            `;
+            
+            // Adiciona listeners de evento
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerButton').addEventListener('click', () => {
+                renderAuthForm('Preencha os campos acima para registrar a conta.', false);
+                document.getElementById('loginForm').onsubmit = handleRegister;
+                document.querySelector('button[type="submit"]').textContent = 'Registrar';
+                document.querySelector('h2').textContent = 'Registro de Novo Usuário';
+                document.getElementById('registerButton').style.display = 'none'; // Esconde o botão de registro
+            });
+        }
+
+        /**
+         * Renderiza a área principal de Professores (após o login).
+         * @param {Array} professores Lista de professores a serem exibidos.
+         */
+        function renderProfessoresArea(professores) {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-6 border-b pb-4">
+                    <h1 class="text-3xl font-bold text-gray-800">Gerenciamento de Professores</h1>
+                    <button id="logoutButton" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200 shadow-md">
+                        Sair
+                    </button>
+                </div>
+
+                <!-- Formulário de Cadastro -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-md mb-8">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Cadastrar Novo Professor</h2>
+                    <form id="addProfessorForm" class="flex flex-col md:flex-row gap-4">
+                        <input type="text" id="nome" name="nome" placeholder="Nome do Professor" required 
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150">
+                        <input type="text" id="materia" name="materia" placeholder="Matéria (ex: Cálculo I)" required 
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150">
+                        <button type="submit" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200 shadow-md">
+                            Cadastrar
+                        </button>
+                    </form>
+                    <div id="professorMessage" class="mt-3 text-sm font-medium"></div>
+                </div>
+
+                <!-- Lista de Professores -->
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Lista de Professores Cadastrados (${professores.length})</h2>
+                <div id="professoresList" class="space-y-4">
+                    ${professores.length === 0 
+                        ? '<p class="text-gray-500 p-4 border border-dashed rounded-lg text-center">Nenhum professor cadastrado ainda.</p>'
+                        : professores.map(p => `
+                            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-gray-50 transition duration-150">
+                                <div>
+                                    <p class="text-lg font-semibold text-gray-800">${p.nome}</p>
+                                    <p class="text-sm text-gray-500">${p.materia}</p>
+                                </div>
+                                <button onclick="handleDeleteProfessor(${p.id}, '${p.nome}')" 
+                                    class="text-red-500 hover:text-red-700 transition duration-200 text-sm font-medium">
+                                    Excluir
+                                </button>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            `;
+
+            // Adiciona listeners de evento
+            document.getElementById('logoutButton').addEventListener('click', handleLogout);
+            document.getElementById('addProfessorForm').addEventListener('submit', handleAddProfessor);
+        }
+
+        // --- FUNÇÕES DE LÓGICA E CHAMADA À API ---
+
+        /**
+         * Lida com o registro de um novo usuário.
+         */
+        async function handleRegister(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                renderAuthForm('Email e senha são obrigatórios!', true);
                 return;
             }
 
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            try {
+                const response = await fetch(`${API_URL_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
 
-            // Mostrar loader e esconder texto no botão
-            loginButtonText.classList.add('hidden');
-            loginLoader.classList.remove('hidden');
-            loginError.classList.add('hidden');
+                if (response.ok) {
+                    renderAuthForm('Registro bem-sucedido! Faça login agora.', false);
+                } else {
+                    const errorData = await response.json();
+                    renderAuthForm(`Erro no registro: ${errorData.message || response.statusText}`, true);
+                }
+            } catch (error) {
+                console.error('Erro de rede/conexão:', error);
+                renderAuthForm(`Erro de conexão. A API está online? (${error.message})`, true);
+            }
+        }
+
+        /**
+         * Lida com o login do usuário.
+         */
+        async function handleLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                renderAuthForm('Email e senha são obrigatórios!', true);
+                return;
+            }
 
             try {
                 const response = await fetch(`${API_URL_BASE}/login`, {
@@ -135,128 +194,152 @@
                     body: JSON.stringify({ email, password })
                 });
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Credenciais inválidas');
+                if (response.ok) {
+                    const data = await response.json();
+                    jwtToken = data.token;
+                    localStorage.setItem('jwtToken', jwtToken);
+                    await setupProfessores();
+                } else {
+                    const errorData = await response.json();
+                    renderAuthForm(`Erro no login: ${errorData.message || 'Credenciais inválidas.'}`, true);
                 }
-
-                // SUCESSO!
-                jwtToken = data.token; // Guardar o token
-                // Esconder login, mostrar professores
-                loginSection.classList.add('hidden');
-                professoresSection.classList.remove('hidden');
-                
-                // Buscar professores
-                await buscarProfessores();
-
             } catch (error) {
-                loginError.textContent = `Erro no login: ${error.message}`;
-                loginError.classList.remove('hidden');
-            } finally {
-                // Esconder loader e mostrar texto
-                loginButtonText.classList.remove('hidden');
-                loginLoader.classList.add('hidden');
+                console.error('Erro de rede/conexão:', error);
+                renderAuthForm(`Erro de conexão: ${error.message}. A API está online?`, true);
             }
-        });
+        }
 
-        // --- LÓGICA DE BUSCAR PROFESSORES ---
-        async function buscarProfessores() {
-            if (!jwtToken) return;
+        /**
+         * Lida com o logout do usuário.
+         */
+        function handleLogout() {
+            jwtToken = null;
+            localStorage.removeItem('jwtToken');
+            renderAuthForm('Sessão encerrada com sucesso.');
+        }
 
-            professoresLoader.classList.remove('hidden');
-            professoresError.classList.add('hidden');
-            professoresList.innerHTML = ''; // Limpar lista antiga
-
+        /**
+         * Busca a lista de professores e renderiza a área principal.
+         */
+        async function setupProfessores() {
             try {
                 const response = await fetch(`${API_URL_BASE}/professores`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${jwtToken}`
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Content-Type': 'application/json'
                     }
                 });
 
-                if (response.status === 401) {
-                    throw new Error('Token inválido ou expirado. Faça login novamente.');
-                }
-                if (!response.ok) {
-                    throw new Error('Não foi possível buscar os professores.');
-                }
-
-                const professores = await response.json();
-
-                if (professores.length === 0) {
-                    professoresList.innerHTML = '<li class="text-gray-500">Nenhum professor cadastrado.</li>';
+                if (response.ok) {
+                    const professores = await response.json();
+                    renderProfessoresArea(professores);
+                } else if (response.status === 401) {
+                    handleLogout(); // Token expirado ou inválido
+                    renderAuthForm('Sua sessão expirou. Faça login novamente.', true);
                 } else {
-                    professores.forEach(prof => {
-                        const li = document.createElement('li');
-                        li.className = 'p-3 bg-gray-50 rounded-md border flex justify-between items-center';
-                        li.innerHTML = `
-                            <span class="font-medium">${prof.nome}</span>
-                            <span class="text-sm text-gray-600">${prof.materia}</span>
-                        `;
-                        professoresList.appendChild(li);
-                    });
+                    throw new Error(`Erro ao carregar professores: ${response.statusText}`);
                 }
 
             } catch (error) {
-                professoresError.textContent = `Erro: ${error.message}`;
-                professoresError.classList.remove('hidden');
-                if (error.message.includes('Token')) {
-                    // Se o token expirou, forçar o logout
-                    setTimeout(() => {
-                        jwtToken = null;
-                        loginSection.classList.remove('hidden');
-                        professoresSection.classList.add('hidden');
-                    }, 3000);
-                }
-            } finally {
-                professoresLoader.classList.add('hidden');
+                console.error('Erro ao buscar professores:', error);
+                alert(`Erro ao carregar dados: ${error.message}. Verifique a consola (F12).`);
+                handleLogout(); // Força logout em caso de erro crítico de rede
             }
         }
 
-        // --- LÓGICA DE ADICIONAR PROFESSOR ---
-        addProfessorForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!jwtToken) return;
+        /**
+         * Lida com o cadastro de um novo professor.
+         */
+        async function handleAddProfessor(event) {
+            event.preventDefault();
+            const nome = document.getElementById('nome').value.trim();
+            const materia = document.getElementById('materia').value.trim();
+            const messageElement = document.getElementById('professorMessage');
 
-            const nome = document.getElementById('prof-nome').value;
-            const materia = document.getElementById('prof-materia').value;
-
-            addButtonText.classList.add('hidden');
-            addLoader.classList.remove('hidden');
-            addError.classList.add('hidden');
-
+            if (!nome || !materia) {
+                messageElement.textContent = 'Nome e matéria são obrigatórios.';
+                messageElement.className = 'mt-3 text-sm font-medium text-red-600';
+                return;
+            }
+            
             try {
                 const response = await fetch(`${API_URL_BASE}/professores`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwtToken}`
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ nome, materia })
                 });
-                
-                if (!response.ok) {
-                    const data = await response.json();
-                    throw new Error(data.message || 'Erro ao adicionar professor');
+
+                if (response.ok) {
+                    document.getElementById('nome').value = '';
+                    document.getElementById('materia').value = '';
+                    messageElement.textContent = 'Professor cadastrado com sucesso!';
+                    messageElement.className = 'mt-3 text-sm font-medium text-green-600';
+                    await setupProfessores(); // Atualiza a lista
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || response.statusText);
                 }
-
-                // Sucesso! Limpar formulário e recarregar lista
-                document.getElementById('prof-nome').value = '';
-                document.getElementById('prof-materia').value = '';
-                await buscarProfessores(); // Atualizar a lista
-
             } catch (error) {
-                addError.textContent = `Erro: ${error.message}`;
-                addError.classList.remove('hidden');
-            } finally {
-                addButtonText.classList.remove('hidden');
-                addLoader.classList.add('hidden');
+                messageElement.textContent = `Erro ao cadastrar: ${error.message}`;
+                messageElement.className = 'mt-3 text-sm font-medium text-red-600';
+                console.error('Erro ao cadastrar professor:', error);
             }
-        });
+        }
+        
+        /**
+         * Lida com a exclusão de um professor.
+         */
+        async function handleDeleteProfessor(id, nome) {
+             if (!confirm(`Tem certeza que deseja excluir o professor(a) ${nome}?`)) {
+                 return;
+             }
+             
+             try {
+                 const response = await fetch(`${API_URL_BASE}/professores/${id}`, {
+                     method: 'DELETE',
+                     headers: { 'Authorization': `Bearer ${jwtToken}` }
+                 });
+
+                 if (response.status === 204) {
+                     alert(`Professor(a) ${nome} excluído(a) com sucesso.`);
+                     await setupProfessores(); // Atualiza a lista
+                 } else if (response.status === 404) {
+                     alert(`Erro: Professor(a) não encontrado(a).`);
+                 } else {
+                     throw new Error(response.statusText);
+                 }
+             } catch (error) {
+                 alert(`Erro ao excluir professor: ${error.message}`);
+                 console.error('Erro ao excluir professor:', error);
+             }
+         }
+
+        // --- INICIALIZAÇÃO ---
+
+        function initializeApp() {
+             // Opcional: Adicionar alerta para o problema do confirm() no iFrame
+             window.confirm = (message) => {
+                 return prompt(message + ' (Digite "sim" para confirmar)');
+             };
+             
+             if (jwtToken) {
+                 setupProfessores();
+             } else {
+                 renderAuthForm();
+             }
+        }
+        
+        // !!! MUITO IMPORTANTE: COLOQUE A URL DA SUA API DO RENDER AQUI !!!
+        const API_URL_BASE = "https://projeto-backend-zw5n.onrender.com"; 
+        // A sua URL deve estar aqui, sem a barra '/' no final.
+        // ---------------------
+
+        initializeApp();
 
     </script>
-
 </body>
 </html>
