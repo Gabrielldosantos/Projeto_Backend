@@ -8,9 +8,9 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import cors from "cors";
 
-// As bibliotecas do Swagger não têm tipagem padrão
+// ⚠️ Importação do Swagger deve ser ajustada para ler o ficheiro estático JS
 const swaggerUi = require("swagger-ui-express");
-const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerSpec = require("./swaggerSpec"); // Caminho para o ficheiro JS
 
 // Inicializa a conexão com o banco de dados (Postgres na nuvem / SQLite local)
 AppDataSource.initialize()
@@ -37,60 +37,7 @@ AppDataSource.initialize()
       process.env.JWT_SECRET || "sua-chave-secreta-super-forte-12345";
 
     // 📚 Configuração do Swagger
-    const swaggerOptions = {
-      definition: {
-        openapi: "3.0.0",
-        info: {
-          title: "API do Sistema Web (Trabalho DevOps)",
-          version: "1.0.0",
-          description: "Documentação da API para o trabalho de backend. Requer autenticação JWT para todas as rotas de Professores.",
-        },
-        servers: [
-          {
-            url: `https://projeto-backend-zw5n.onrender.com`, // URL de Produção no Render
-            description: "Servidor de Produção (Cloud)",
-          },
-          {
-            url: `http://localhost:${PORT}`, // URL de Desenvolvimento Local
-            description: "Servidor Local (Desenvolvimento)",
-          },
-        ],
-        components: {
-          securitySchemes: {
-            bearerAuth: {
-              type: "http",
-              scheme: "bearer",
-              bearerFormat: "JWT",
-            },
-          },
-          schemas: {
-            // Definição da Entidade Professor para o Swagger
-            Professor: {
-              type: "object",
-              properties: {
-                id: { type: "integer", example: 1 },
-                nome: { type: "string", example: "Dr. Fernando" },
-                materia: { type: "string", example: "DevOps" },
-              },
-              required: ["nome", "materia"],
-            },
-          },
-        },
-        // Security Global (Todas as rotas por padrão requerem autenticação, a menos que especificado diferente)
-        security: [
-          {
-            bearerAuth: [],
-          },
-        ],
-      },
-      // 🚨 CORREÇÃO FINAL: Lendo o ficheiro TypeScript original (.ts)
-      // Esta é a solução mais universal para o Swagger JSDoc, evitando problemas de build/caminho.
-      apis: ["./src/index.ts"],
-    };
-
-    const specs = swaggerJsdoc(swaggerOptions);
-    // Rota de acesso à documentação
-    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+    app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
     // Rota raiz (Verificação de status)
     app.get("/", (req: Request, res: Response) => {
@@ -99,34 +46,8 @@ AppDataSource.initialize()
 
     // --- ROTAS DE AUTENTICAÇÃO ---
 
-    /**
-     * @swagger
-     * /register:
-     * post:
-     * summary: Registra um novo usuário.
-     * tags: [Autenticação]
-     * security: []
-     * requestBody:
-     * required: true
-     * content:
-     * application/json:
-     * schema:
-     * type: object
-     * properties:
-     * email:
-     * type: string
-     * example: admin@site.com
-     * password:
-     * type: string
-     * example: senha123
-     * responses:
-     * 201:
-     * description: Usuário criado com sucesso. Retorna o ID e Email.
-     * 400:
-     * description: Dados inválidos (Email/Senha obrigatórios ou Email já cadastrado).
-     * 500:
-     * description: Erro interno do servidor.
-     */
+    // 🔐 Registro de usuários
+    // Rota documentada no ficheiro swaggerSpec.js
     app.post("/register", async (req: Request, res: Response) => {
       const { email, password } = req.body;
 
@@ -149,7 +70,7 @@ AppDataSource.initialize()
       } catch (error: any) {
         // Tratamento genérico para erro de constraint única (email duplicado)
         if (error.code && (error.code === "23505" || error.code === "SQLITE_CONSTRAINT")) {
-            return res.status(400).json({ message: "E-mail já cadastrado" });
+          return res.status(400).json({ message: "E-mail já cadastrado" });
         }
         res
           .status(500)
@@ -157,43 +78,8 @@ AppDataSource.initialize()
       }
     });
 
-    /**
-     * @swagger
-     * /login:
-     * post:
-     * summary: Autentica um usuário e retorna um token JWT.
-     * tags: [Autenticação]
-     * security: []
-     * requestBody:
-     * required: true
-     * content:
-     * application/json:
-     * schema:
-     * type: object
-     * properties:
-     * email:
-     * type: string
-     * example: admin@site.com
-     * password:
-     * type: string
-     * example: senha123
-     * responses:
-     * 200:
-     * description: Login bem-sucedido. Retorna o token JWT.
-     * content:
-     * application/json:
-     * schema:
-     * type: object
-     * properties:
-     * message:
-     * type: string
-     * token:
-     * type: string
-     * 401:
-     * description: Credenciais inválidas (Email ou Senha incorretos).
-     * 400:
-     * description: Email e senha são obrigatórios.
-     */
+    // 🔑 Login de usuários
+    // Rota documentada no ficheiro swaggerSpec.js
     app.post("/login", async (req: Request, res: Response) => {
       const { email, password } = req.body;
 
@@ -228,54 +114,16 @@ AppDataSource.initialize()
 
     // --- ROTAS DE PROFESSORES (CRUD) ---
 
-    /**
-     * @swagger
-     * /professores:
-     * get:
-     * summary: Lista todos os professores.
-     * tags: [Professores]
-     * responses:
-     * 200:
-     * description: Lista de professores.
-     * content:
-     * application/json:
-     * schema:
-     * type: array
-     * items:
-     * $ref: '#/components/schemas/Professor'
-     * 401:
-     * description: Não autorizado (Token JWT ausente ou inválido).
-     */
+    // 👨‍🏫 Listar professores
+    // Rota documentada no ficheiro swaggerSpec.js
     app.get("/professores", async (req: Request, res: Response) => {
       const repositorio = AppDataSource.getRepository(Professor);
       const professores = await repositorio.find();
       res.json(professores);
     });
 
-    /**
-     * @swagger
-     * /professores:
-     * post:
-     * summary: Cadastra um novo professor.
-     * tags: [Professores]
-     * requestBody:
-     * required: true
-     * content:
-     * application/json:
-     * schema:
-     * $ref: '#/components/schemas/Professor'
-     * responses:
-     * 201:
-     * description: Professor cadastrado com sucesso.
-     * content:
-     * application/json:
-     * schema:
-     * $ref: '#/components/schemas/Professor'
-     * 400:
-     * description: Nome e matéria são obrigatórios.
-     * 401:
-     * description: Não autorizado.
-     */
+    // ➕ Cadastrar professor
+    // Rota documentada no ficheiro swaggerSpec.js
     app.post("/professores", async (req: Request, res: Response) => {
       const { nome, materia } = req.body;
       if (!nome || !materia) {
@@ -291,38 +139,8 @@ AppDataSource.initialize()
       res.status(201).json(novoProfessor);
     });
 
-    /**
-     * @swagger
-     * /professores/{id}:
-     * put:
-     * summary: Atualiza um professor pelo ID.
-     * tags: [Professores]
-     * parameters:
-     * - in: path
-     * name: id
-     * required: true
-     * schema:
-     * type: integer
-     * description: ID do professor a ser atualizado.
-     * requestBody:
-     * required: true
-     * content:
-     * application/json:
-     * schema:
-     * type: object
-     * properties:
-     * nome:
-     * type: string
-     * materia:
-     * type: string
-     * responses:
-     * 200:
-     * description: Professor atualizado com sucesso.
-     * 404:
-     * description: Professor não encontrado.
-     * 401:
-     * description: Não autorizado.
-     */
+    // ✏️ Atualizar professor
+    // Rota documentada no ficheiro swaggerSpec.js
     app.put("/professores/:id", async (req: Request, res: Response) => {
       const id = parseInt(req.params.id);
       const { nome, materia } = req.body;
@@ -340,27 +158,8 @@ AppDataSource.initialize()
       res.json(professor);
     });
 
-    /**
-     * @swagger
-     * /professores/{id}:
-     * delete:
-     * summary: Deleta um professor pelo ID.
-     * tags: [Professores]
-     * parameters:
-     * - in: path
-     * name: id
-     * required: true
-     * schema:
-     * type: integer
-     * description: ID do professor a ser deletado.
-     * responses:
-     * 204:
-     * description: Professor deletado com sucesso (No Content).
-     * 404:
-     * description: Professor não encontrado.
-     * 401:
-     * description: Não autorizado.
-     */
+    // ❌ Deletar professor
+    // Rota documentada no ficheiro swaggerSpec.js
     app.delete("/professores/:id", async (req: Request, res: Response) => {
       const id = parseInt(req.params.id);
       const repositorio = AppDataSource.getRepository(Professor);
