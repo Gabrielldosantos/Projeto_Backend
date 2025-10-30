@@ -8,9 +8,11 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import cors from "cors";
 
-// ⚠️ Importação do Swagger deve ser ajustada para ler o ficheiro estático JS
+// ⚠️ Importação do Swagger ajustada para ler o ficheiro estático JS na raiz (../swaggerSpec)
+// Note: O caminho de importação deve ser ajustado para onde o Node.js em 'dist/index.js' 
+// vai procurar o ficheiro. Se 'dist' estiver em 'raiz/', ele busca em 'raiz/swaggerSpec.js'.
 const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("./swaggerSpec"); // Caminho para o ficheiro JS
+const swaggerSpec = require("../swaggerSpec"); 
 
 // Inicializa a conexão com o banco de dados (Postgres na nuvem / SQLite local)
 AppDataSource.initialize()
@@ -57,21 +59,22 @@ AppDataSource.initialize()
           .json({ message: "Email e senha são obrigatórios" });
       }
 
+      const repositorio = AppDataSource.getRepository(User);
+      // Verifica se o usuário já existe
+      const existingUser = await repositorio.findOneBy({ email: email });
+      if (existingUser) {
+        return res.status(400).json({ message: "E-mail já cadastrado" });
+      }
+
       const passwordHash = await bcrypt.hash(password, 10);
       const user = new User();
       user.email = email;
       user.passwordHash = passwordHash;
 
-      const repositorio = AppDataSource.getRepository(User);
-
       try {
         await repositorio.save(user);
         res.status(201).json({ id: user.id, email: user.email });
       } catch (error: any) {
-        // Tratamento genérico para erro de constraint única (email duplicado)
-        if (error.code && (error.code === "23505" || error.code === "SQLITE_CONSTRAINT")) {
-          return res.status(400).json({ message: "E-mail já cadastrado" });
-        }
         res
           .status(500)
           .json({ message: "Erro ao cadastrar usuário", error: error.message });
