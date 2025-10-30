@@ -4,15 +4,18 @@
     "module": "commonjs",
     "rootDir": "./src",
     "outDir": "./dist",
-    "removeComments": false,
-    "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    
-    "strictPropertyInitialization": false,
+    "strict": true,
+    "skipLibCheck": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
