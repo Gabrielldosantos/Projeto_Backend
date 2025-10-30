@@ -6,6 +6,7 @@ import { User } from "./entities/User";
 import { authMiddleware } from "./middlewares/authMiddleware";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import cors from "cors";
 
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -16,6 +17,17 @@ AppDataSource.initialize()
 
     const app = express();
     app.use(express.json());
+
+    // ✅ Configuração do CORS para permitir o frontend do Render
+    app.use(
+      cors({
+        origin: [
+          "https://projeto-backend-1-bmv4.onrender.com", // domínio do seu frontend
+        ],
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+      })
+    );
 
     const PORT = process.env.PORT || 3000;
     const JWT_SECRET =
@@ -31,7 +43,7 @@ AppDataSource.initialize()
         },
         servers: [
           {
-            url: `http://localhost:${PORT}`,
+            url: `https://projeto-backend-zw5n.onrender.com`, // URL do backend no Render
           },
         ],
         components: {
@@ -49,54 +61,17 @@ AppDataSource.initialize()
           },
         ],
       },
-      apis: ['./dist/index.js'],
+      apis: ["./dist/index.js"],
     };
 
     const specs = swaggerJsdoc(swaggerOptions);
     app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-    /**
-     * @swagger
-     * /:
-     *   get:
-     *     summary: Rota principal de verificação da API
-     *     tags: [Status]
-     *     responses:
-     *       200:
-     *         description: Mensagem "API funcionando!"
-     */
     app.get("/", (req: Request, res: Response) => {
-      res.send('API 100% DEPLOYADA E FUNCIONANDO!');
+      res.send("API 100% DEPLOYADA E FUNCIONANDO!");
     });
 
-    /**
-     * @swagger
-     * /register:
-     *   post:
-     *     summary: Registra um novo usuário
-     *     tags: [Autenticação]
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             required:
-     *               - email
-     *               - password
-     *             properties:
-     *               email:
-     *                 type: string
-     *                 example: usuario@exemplo.com
-     *               password:
-     *                 type: string
-     *                 example: senha123
-     *     responses:
-     *       201:
-     *         description: Usuário criado com sucesso
-     *       400:
-     *         description: E-mail já cadastrado ou dados inválidos
-     */
+    // 🔐 Registro de usuários
     app.post("/register", async (req: Request, res: Response) => {
       const { email, password } = req.body;
 
@@ -126,34 +101,7 @@ AppDataSource.initialize()
       }
     });
 
-    /**
-     * @swagger
-     * /login:
-     *   post:
-     *     summary: Autentica um usuário e retorna um token JWT
-     *     tags: [Autenticação]
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             required:
-     *               - email
-     *               - password
-     *             properties:
-     *               email:
-     *                 type: string
-     *                 example: usuario@exemplo.com
-     *               password:
-     *                 type: string
-     *                 example: senha123
-     *     responses:
-     *       200:
-     *         description: Login bem-sucedido, retorna o token
-     *       401:
-     *         description: Credenciais inválidas
-     */
+    // 🔑 Login de usuários
     app.post("/login", async (req: Request, res: Response) => {
       const { email, password } = req.body;
 
@@ -182,58 +130,17 @@ AppDataSource.initialize()
       res.json({ message: "Login bem-sucedido!", token });
     });
 
+    // 🔒 Middleware de autenticação
     app.use("/professores", authMiddleware);
 
-    /**
-     * @swagger
-     * /professores:
-     *   get:
-     *     summary: Lista todos os professores
-     *     tags: [Professores]
-     *     security:
-     *       - bearerAuth: []
-     *     responses:
-     *       200:
-     *         description: Lista de professores
-     *       401:
-     *         description: Não autorizado
-     */
+    // 👨‍🏫 Listar professores
     app.get("/professores", async (req: Request, res: Response) => {
       const repositorio = AppDataSource.getRepository(Professor);
       const professores = await repositorio.find();
       res.json(professores);
     });
 
-    /**
-     * @swagger
-     * /professores:
-     *   post:
-     *     summary: Cadastra um novo professor
-     *     tags: [Professores]
-     *     security:
-     *       - bearerAuth: []
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             required:
-     *               - nome
-     *               - materia
-     *             properties:
-     *               nome:
-     *                 type: string
-     *                 example: Dr. Silva
-     *               materia:
-     *                 type: string
-     *                 example: Cálculo I
-     *     responses:
-     *       201:
-     *         description: Professor cadastrado com sucesso
-     *       401:
-     *         description: Não autorizado
-     */
+    // ➕ Cadastrar professor
     app.post("/professores", async (req: Request, res: Response) => {
       const { nome, materia } = req.body;
       if (!nome || !materia) {
@@ -249,40 +156,7 @@ AppDataSource.initialize()
       res.status(201).json(novoProfessor);
     });
 
-    /**
-     * @swagger
-     * /professores/{id}:
-     *   put:
-     *     summary: Atualiza um professor existente
-     *     tags: [Professores]
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *         description: O ID do professor a ser atualizado
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             properties:
-     *               nome:
-     *                 type: string
-     *               materia:
-     *                 type: string
-     *     responses:
-     *       200:
-     *         description: Professor atualizado com sucesso
-     *       404:
-     *         description: Professor não encontrado
-     *       401:
-     *         description: Não autorizado
-     */
+    // ✏️ Atualizar professor
     app.put("/professores/:id", async (req: Request, res: Response) => {
       const id = parseInt(req.params.id);
       const { nome, materia } = req.body;
@@ -300,29 +174,7 @@ AppDataSource.initialize()
       res.json(professor);
     });
 
-    /**
-     * @swagger
-     * /professores/{id}:
-     *   delete:
-     *     summary: Deleta um professor
-     *     tags: [Professores]
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: integer
-     *         description: O ID do professor a ser deletado
-     *     responses:
-     *       204:
-     *         description: Professor deletado com sucesso
-     *       404:
-     *         description: Professor não encontrado
-     *       401:
-     *         description: Não autorizado
-     */
+    // ❌ Deletar professor
     app.delete("/professores/:id", async (req: Request, res: Response) => {
       const id = parseInt(req.params.id);
       const repositorio = AppDataSource.getRepository(Professor);
@@ -337,7 +189,7 @@ AppDataSource.initialize()
     });
 
     app.listen(PORT, () => {
-      console.log(`Servidor rodando na porta ${PORT}`);
+      console.log(`🚀 Servidor rodando na porta ${PORT}`);
     });
   })
   .catch((error: any) =>
