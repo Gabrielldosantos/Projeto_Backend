@@ -1,345 +1,208 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frontend - Trabalho DevOps</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Configuração de fontes -->
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Acadêmico - Professores</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #0078d7;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+    }
+    main {
+      padding: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    form {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.3rem 0;
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #0078d7;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 0.75rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #0078d7;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
+  <header>
+    <h1>Sistema Acadêmico - Professores</h1>
+  </header>
+  <main>
+    <section id="login-section">
+      <h2>Login</h2>
+      <form id="login-form">
+        <input type="text" id="username" placeholder="Usuário" required>
+        <input type="password" id="password" placeholder="Senha" required>
+        <button type="submit">Entrar</button>
+      </form>
+    </section>
 
-    <!-- Container Principal do App -->
-    <div id="app-container" class="w-full max-w-4xl bg-white shadow-xl rounded-xl p-8 transition-all duration-500">
-        <!-- O Conteúdo será injetado aqui pelo JavaScript -->
-    </div>
+    <section id="professor-section" style="display: none;">
+      <h2>Cadastro de Professores</h2>
+      <form id="professor-form">
+        <input type="text" id="nome" placeholder="Nome do Professor" required>
+        <input type="text" id="disciplina" placeholder="Disciplina" required>
+        <button type="submit">Cadastrar</button>
+      </form>
 
-    <script>
-        // Variável global para guardar o token JWT
-        let jwtToken = localStorage.getItem('jwtToken'); 
-        
-        // --- FUNÇÕES DE RENDERIZAÇÃO DE UI ---
+      <h2>Lista de Professores</h2>
+      <table id="professores-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Disciplina</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
 
-        /**
-         * Renderiza o formulário de Login e Registro.
-         */
-        function renderAuthForm(message = '', isError = false) {
-            const container = document.getElementById('app-container');
-            
-            // Define o estilo da mensagem
-            let messageStyle = '';
-            if (message) {
-                messageStyle = isError 
-                    ? 'text-red-600 bg-red-100 border-red-200' 
-                    : 'text-green-600 bg-green-100 border-green-200';
-            }
+  <script>
+    const API_URL_BASE =
+      window.location.hostname.includes("localhost")
+        ? "http://localhost:3000"
+        : "https://projeto-backend-zw5n.onrender.com";
 
-            container.innerHTML = `
-                <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Frontend - Trabalho DevOps</h1>
-                
-                <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-lg shadow-md border border-gray-200">
-                    <h2 class="text-2xl font-semibold text-center text-gray-700 mb-6">Login</h2>
-                    
-                    ${message ? `<div class="p-3 mb-4 rounded-lg border text-sm font-medium ${messageStyle}">${message}</div>` : ''}
+    const loginForm = document.getElementById("login-form");
+    const professorForm = document.getElementById("professor-form");
+    const professoresTable = document.getElementById("professores-table").querySelector("tbody");
+    const loginSection = document.getElementById("login-section");
+    const professorSection = document.getElementById("professor-section");
+    let token = "";
 
-                    <form id="loginForm" class="space-y-4">
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
-                            <input type="email" id="email" name="email" value="usuario@exemplo.com" required 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="usuario@exemplo.com">
-                        </div>
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Senha:</label>
-                            <input type="password" id="password" name="password" value="senha123" required 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 transition duration-150" placeholder="********">
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition duration-200 shadow-md">
-                            Entrar
-                        </button>
-                    </form>
-                    
-                    <p class="text-center text-sm text-gray-500 mt-4">
-                        Dica: Use o seu Swagger da API (o link que tem /api-docs) para criar um utilizador primeiro.
-                        <button id="registerButton" class="text-blue-600 hover:text-blue-800 font-medium ml-1">
-                            Ou clique aqui para registrar.
-                        </button>
-                    </p>
-                </div>
-            `;
-            
-            // Adiciona listeners de evento
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('registerButton').addEventListener('click', () => {
-                renderAuthForm('Preencha os campos acima para registrar a conta.', false);
-                document.getElementById('loginForm').onsubmit = handleRegister;
-                document.querySelector('button[type="submit"]').textContent = 'Registrar';
-                document.querySelector('h2').textContent = 'Registro de Novo Usuário';
-                document.getElementById('registerButton').style.display = 'none'; // Esconde o botão de registro
-            });
-        }
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
 
-        /**
-         * Renderiza a área principal de Professores (após o login).
-         * @param {Array} professores Lista de professores a serem exibidos.
-         */
-        function renderProfessoresArea(professores) {
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
-                <div class="flex justify-between items-center mb-6 border-b pb-4">
-                    <h1 class="text-3xl font-bold text-gray-800">Gerenciamento de Professores</h1>
-                    <button id="logoutButton" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200 shadow-md">
-                        Sair
-                    </button>
-                </div>
+      const response = await fetch(`${API_URL_BASE}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-                <!-- Formulário de Cadastro -->
-                <div class="bg-gray-50 p-6 rounded-lg shadow-md mb-8">
-                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Cadastrar Novo Professor</h2>
-                    <form id="addProfessorForm" class="flex flex-col md:flex-row gap-4">
-                        <input type="text" id="nome" name="nome" placeholder="Nome do Professor" required 
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150">
-                        <input type="text" id="materia" name="materia" placeholder="Matéria (ex: Cálculo I)" required 
-                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition duration-150">
-                        <button type="submit" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700 transition duration-200 shadow-md">
-                            Cadastrar
-                        </button>
-                    </form>
-                    <div id="professorMessage" class="mt-3 text-sm font-medium"></div>
-                </div>
+      if (response.ok) {
+        const data = await response.json();
+        token = data.token;
+        loginSection.style.display = "none";
+        professorSection.style.display = "block";
+        carregarProfessores();
+      } else {
+        alert("Usuário ou senha inválidos");
+      }
+    });
 
-                <!-- Lista de Professores -->
-                <h2 class="text-2xl font-semibold text-gray-700 mb-4">Lista de Professores Cadastrados (${professores.length})</h2>
-                <div id="professoresList" class="space-y-4">
-                    ${professores.length === 0 
-                        ? '<p class="text-gray-500 p-4 border border-dashed rounded-lg text-center">Nenhum professor cadastrado ainda.</p>'
-                        : professores.map(p => `
-                            <div class="flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:bg-gray-50 transition duration-150">
-                                <div>
-                                    <p class="text-lg font-semibold text-gray-800">${p.nome}</p>
-                                    <p class="text-sm text-gray-500">${p.materia}</p>
-                                </div>
-                                <button onclick="handleDeleteProfessor(${p.id}, '${p.nome}')" 
-                                    class="text-red-500 hover:text-red-700 transition duration-200 text-sm font-medium">
-                                    Excluir
-                                </button>
-                            </div>
-                        `).join('')
-                    }
-                </div>
-            `;
+    professorForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nome = document.getElementById("nome").value;
+      const disciplina = document.getElementById("disciplina").value;
 
-            // Adiciona listeners de evento
-            document.getElementById('logoutButton').addEventListener('click', handleLogout);
-            document.getElementById('addProfessorForm').addEventListener('submit', handleAddProfessor);
-        }
+      const response = await fetch(`${API_URL_BASE}/professores`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ nome, disciplina }),
+      });
 
-        // --- FUNÇÕES DE LÓGICA E CHAMADA À API ---
+      if (response.ok) {
+        alert("Professor cadastrado com sucesso!");
+        professorForm.reset();
+        carregarProfessores();
+      } else {
+        alert("Erro ao cadastrar professor");
+      }
+    });
 
-        /**
-         * Lida com o registro de um novo usuário.
-         */
-        async function handleRegister(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+    async function carregarProfessores() {
+      const response = await fetch(`${API_URL_BASE}/professores`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-            if (!email || !password) {
-                renderAuthForm('Email e senha são obrigatórios!', true);
-                return;
-            }
+      if (response.ok) {
+        const professores = await response.json();
+        professoresTable.innerHTML = "";
+        professores.forEach((prof) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${prof.id}</td>
+            <td>${prof.nome}</td>
+            <td>${prof.disciplina}</td>
+            <td>
+              <button onclick="excluirProfessor(${prof.id})">Excluir</button>
+            </td>
+          `;
+          professoresTable.appendChild(tr);
+        });
+      } else {
+        alert("Erro ao carregar professores");
+      }
+    }
 
-            try {
-                const response = await fetch(`${API_URL_BASE}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+    async function excluirProfessor(id) {
+      const confirmar = confirm("Tem certeza que deseja excluir?");
+      if (!confirmar) return;
 
-                if (response.ok) {
-                    renderAuthForm('Registro bem-sucedido! Faça login agora.', false);
-                } else {
-                    const errorData = await response.json();
-                    renderAuthForm(`Erro no registro: ${errorData.message || response.statusText}`, true);
-                }
-            } catch (error) {
-                console.error('Erro de rede/conexão:', error);
-                renderAuthForm(`Erro de conexão. A API está online? (${error.message})`, true);
-            }
-        }
+      const response = await fetch(`${API_URL_BASE}/professores/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        /**
-         * Lida com o login do usuário.
-         */
-        async function handleLogin(event) {
-            event.preventDefault();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            
-            if (!email || !password) {
-                renderAuthForm('Email e senha são obrigatórios!', true);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_URL_BASE}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    jwtToken = data.token;
-                    localStorage.setItem('jwtToken', jwtToken);
-                    await setupProfessores();
-                } else {
-                    const errorData = await response.json();
-                    renderAuthForm(`Erro no login: ${errorData.message || 'Credenciais inválidas.'}`, true);
-                }
-            } catch (error) {
-                console.error('Erro de rede/conexão:', error);
-                renderAuthForm(`Erro de conexão: ${error.message}. A API está online?`, true);
-            }
-        }
-
-        /**
-         * Lida com o logout do usuário.
-         */
-        function handleLogout() {
-            jwtToken = null;
-            localStorage.removeItem('jwtToken');
-            renderAuthForm('Sessão encerrada com sucesso.');
-        }
-
-        /**
-         * Busca a lista de professores e renderiza a área principal.
-         */
-        async function setupProfessores() {
-            try {
-                const response = await fetch(`${API_URL_BASE}/professores`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const professores = await response.json();
-                    renderProfessoresArea(professores);
-                } else if (response.status === 401) {
-                    handleLogout(); // Token expirado ou inválido
-                    renderAuthForm('Sua sessão expirou. Faça login novamente.', true);
-                } else {
-                    throw new Error(`Erro ao carregar professores: ${response.statusText}`);
-                }
-
-            } catch (error) {
-                console.error('Erro ao buscar professores:', error);
-                alert(`Erro ao carregar dados: ${error.message}. Verifique a consola (F12).`);
-                handleLogout(); // Força logout em caso de erro crítico de rede
-            }
-        }
-
-        /**
-         * Lida com o cadastro de um novo professor.
-         */
-        async function handleAddProfessor(event) {
-            event.preventDefault();
-            const nome = document.getElementById('nome').value.trim();
-            const materia = document.getElementById('materia').value.trim();
-            const messageElement = document.getElementById('professorMessage');
-
-            if (!nome || !materia) {
-                messageElement.textContent = 'Nome e matéria são obrigatórios.';
-                messageElement.className = 'mt-3 text-sm font-medium text-red-600';
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_URL_BASE}/professores`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${jwtToken}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ nome, materia })
-                });
-
-                if (response.ok) {
-                    document.getElementById('nome').value = '';
-                    document.getElementById('materia').value = '';
-                    messageElement.textContent = 'Professor cadastrado com sucesso!';
-                    messageElement.className = 'mt-3 text-sm font-medium text-green-600';
-                    await setupProfessores(); // Atualiza a lista
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || response.statusText);
-                }
-            } catch (error) {
-                messageElement.textContent = `Erro ao cadastrar: ${error.message}`;
-                messageElement.className = 'mt-3 text-sm font-medium text-red-600';
-                console.error('Erro ao cadastrar professor:', error);
-            }
-        }
-        
-        /**
-         * Lida com a exclusão de um professor.
-         */
-        async function handleDeleteProfessor(id, nome) {
-             if (!confirm(`Tem certeza que deseja excluir o professor(a) ${nome}?`)) {
-                 return;
-             }
-             
-             try {
-                 const response = await fetch(`${API_URL_BASE}/professores/${id}`, {
-                     method: 'DELETE',
-                     headers: { 'Authorization': `Bearer ${jwtToken}` }
-                 });
-
-                 if (response.status === 204) {
-                     alert(`Professor(a) ${nome} excluído(a) com sucesso.`);
-                     await setupProfessores(); // Atualiza a lista
-                 } else if (response.status === 404) {
-                     alert(`Erro: Professor(a) não encontrado(a).`);
-                 } else {
-                     throw new Error(response.statusText);
-                 }
-             } catch (error) {
-                 alert(`Erro ao excluir professor: ${error.message}`);
-                 console.error('Erro ao excluir professor:', error);
-             }
-         }
-
-        // --- INICIALIZAÇÃO ---
-
-        function initializeApp() {
-             // Opcional: Adicionar alerta para o problema do confirm() no iFrame
-             window.confirm = (message) => {
-                 return prompt(message + ' (Digite "sim" para confirmar)');
-             };
-             
-             if (jwtToken) {
-                 setupProfessores();
-             } else {
-                 renderAuthForm();
-             }
-        }
-        
-        // !!! MUITO IMPORTANTE: COLOQUE A URL DA SUA API DO RENDER AQUI !!!
-        const API_URL_BASE = "http://localhost:3000";
-        // A sua URL deve estar aqui, sem a barra '/' no final.
-        // ---------------------
-
-        initializeApp();
-
-    </script>
+      if (response.ok) {
+        alert("Professor excluído!");
+        carregarProfessores();
+      } else {
+        alert("Erro ao excluir professor");
+      }
+    }
+  </script>
 </body>
 </html>
