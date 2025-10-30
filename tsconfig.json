@@ -14,7 +14,6 @@
     "allowJs": true
   },
   "include": [
-    "src/**/*",
-    "swaggerSpec.js" // Inclui o ficheiro JS para que o compilador o considere
+    "src/**/*"
   ]
 }
