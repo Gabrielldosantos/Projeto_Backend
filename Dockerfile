@@ -1,41 +1,34 @@
-# ---- Estágio 1: Build (Construção) ----
-# Usamos uma imagem Node "completa" para construir
+# 1. Fase de Build: Usamos uma imagem Node maior para compilação
 FROM node:18-alpine AS builder
 
-# Define o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copia os arquivos que definem o projeto
-COPY package.json package-lock.json ./
+# Copia package.json e package-lock.json para instalar dependências
+COPY package*.json ./
+# Usamos --silent para evitar que avisos de dependências interrompam o build
+# --only=production garante que só as 'dependencies' sejam instaladas, economizando tempo
+RUN npm install --only=production --silent
 
-# Instala TODAS as dependências (incluindo devDependencies como o typescript)
-RUN npm install
-
-# Copia todo o resto do código-fonte
+# Copia todo o código-fonte (incluindo src/)
 COPY . .
 
-# Compila o TypeScript para JavaScript (gera a pasta 'dist')
-# Isso usa o script "build": "tsc" que adicionamos no package.json
+# Roda o script de build, que compila o TypeScript para JavaScript na pasta 'dist'
+# Isso pode falhar se houver erros de TS no código, ou se tsconfig.json estiver errado.
+# Vamos assumir que o tsconfig.json e o código estão corretos.
 RUN npm run build
 
-
-# ---- Estágio 2: Production (Produção) ----
-# Usamos uma imagem "slim" (menor) para rodar
+# 2. Fase de Produção: Usamos uma imagem menor para o runtime (mais leve)
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copia os arquivos de definição de projeto novamente
-COPY package.json package-lock.json ./
-
-# Instala APENAS as dependências de produção (ignora o typescript)
-RUN npm ci --omit=dev
-
-# Copia o código JÁ COMPILADO (a pasta 'dist') do estágio 'builder'
+# Copia apenas os node_modules (production), o package.json e a pasta 'dist' da fase anterior
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json .
 COPY --from=builder /app/dist ./dist
 
-# Expõe a porta que a API usa (definida no seu index.ts)
+# Expõe a porta que o Express está a usar
 EXPOSE 3000
 
-# O comando para iniciar a API
-CMD ["node", "dist/index.js"]
+# Comando para iniciar o servidor Node.js
+CMD ["npm", "start"]
