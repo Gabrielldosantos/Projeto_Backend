@@ -83,9 +83,9 @@ AppDataSource.initialize()
           },
         ],
       },
-      // 🚨 CORREÇÃO CRÍTICA: Lendo o ficheiro TypeScript original (.ts)
-      // O Render/GitHub Actions deve compilar antes de rodar, mas ler o TS diretamente garante que a documentação seja encontrada.
-      apis: ["./src/index.ts"], 
+      // 🚨 CORREÇÃO FINAL: Lendo o ficheiro JavaScript compilado (dist/index.js)
+      // Como o build do GitHub Actions/Render é feito antes de rodar, o ficheiro .js deve existir.
+      apis: ["./dist/index.js"],
     };
 
     const specs = swaggerJsdoc(swaggerOptions);
