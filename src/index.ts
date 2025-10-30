@@ -8,11 +8,10 @@ import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import cors from "cors";
 
-// ⚠️ Importação do Swagger ajustada para ler o ficheiro estático JS na raiz (../swaggerSpec)
-// Note: O caminho de importação deve ser ajustado para onde o Node.js em 'dist/index.js' 
-// vai procurar o ficheiro. Se 'dist' estiver em 'raiz/', ele busca em 'raiz/swaggerSpec.js'.
+// ⚠️ CORREÇÃO FINAL: O caminho é './swaggerSpec' porque o ficheiro é COPIADO para 'dist/'
+// e o index.js precisa encontrá-lo LOCALMENTE.
 const swaggerUi = require("swagger-ui-express");
-const swaggerSpec = require("../swaggerSpec"); 
+const swaggerSpec = require("./swaggerSpec"); 
 
 // Inicializa a conexão com o banco de dados (Postgres na nuvem / SQLite local)
 AppDataSource.initialize()
