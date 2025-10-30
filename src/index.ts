@@ -83,9 +83,9 @@ AppDataSource.initialize()
           },
         ],
       },
-      // 🚨 CORREÇÃO FINAL: Lendo o ficheiro JavaScript compilado (dist/index.js)
-      // Como o build do GitHub Actions/Render é feito antes de rodar, o ficheiro .js deve existir.
-      apis: ["./dist/index.js"],
+      // 🚨 CORREÇÃO FINAL: Lendo o ficheiro TypeScript original (.ts)
+      // Esta é a solução mais universal para o Swagger JSDoc, evitando problemas de build/caminho.
+      apis: ["./src/index.ts"],
     };
 
     const specs = swaggerJsdoc(swaggerOptions);
