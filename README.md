@@ -1,157 +1,93 @@
-Projeto Backend DevOps - Gerenciamento de Professores
+# 📚 Projeto Backend DevOps — **Gerenciamento de Professores**
 
-Autor: Gabriel dos Santos
+API RESTful desenvolvida em **TypeScript** para o **módulo de gerenciamento de Professores**, atendendo aos requisitos do **Trabalho 6 de DevOps**.  
+O sistema foi totalmente automatizado com **Continuous Deployment (CD)** via **GitHub Actions** e **Docker**, garantindo **padronização, integração contínua e implantação automática** no Render.
 
-Este projeto implementa uma API RESTful em TypeScript para gerenciar o módulo de Professores, conforme os requisitos do Trabalho 6 de DevOps. Todo o sistema está publicado em ambiente de Continuous Deployment (CD) utilizando GitHub Actions e Docker.
+> 👨‍💻 **Autor:** Gabriel dos Santos
 
-🔗 URLs de Acesso
+---
 
-Serviço
+## 🔗 URLs de Acesso e Documentação (Produção)
 
-URL
+| Serviço | Acesso | Descrição |
+|----------|---------|-----------|
+| 🌐 **Frontend (Site)** | [https://projeto-backend-1-bmv4.onrender.com/](#) | Aplicação web (formulário de login) integrada à API. |
+| ⚙️ **Backend (API)** | [https://projeto-backend-zw5n.onrender.com/](#) | Rota principal da API (`/`). |
+| 📘 **Documentação (Swagger)** | [https://projeto-backend-zw5n.onrender.com/api-docs](#) | Documentação interativa completa das rotas da API. |
+| 💾 **Repositório GitHub** | [https://github.com/gabrielldosantos/Projeto_Backend](#) | Código-fonte completo e pipeline de CI/CD configurado. |
 
-Notas
+> 💡 Substitua os `#` acima pelos links reais do Render, Swagger e GitHub quando disponíveis.
 
-Frontend (Site)
+---
 
-https://projeto-backend-1-bmv4.onrender.com
+## ⚙️ Tecnologias e Requisitos Técnicos
 
-URL para a aplicação web (Formulário de Login).
+A tabela abaixo apresenta as tecnologias utilizadas, o status dos requisitos e links de referência.
 
-Backend (API)
+| Requisito | Status | Tecnologia Utilizada | Documentação / Referência |
+|------------|:------:|----------------------|----------------------------|
+| API em TypeScript | ✅ | Node.js + TypeScript + Express.js | [Node.js](https://nodejs.org/) |
+| Persistência de Dados | ✅ | TypeORM + PostgreSQL (Render) | [TypeORM](https://typeorm.io/) |
+| Autenticação | ✅ | JWT + Criptografia com bcrypt | [JWT](https://jwt.io/) |
+| Documentação da API | ✅ | Swagger (swagger-jsdoc & swagger-ui-express) | [Swagger / OpenAPI](https://swagger.io/) |
+| Continuous Deployment | ✅ | GitHub Actions (build e deploy automático) | [GitHub Actions](https://github.com/features/actions) |
+| Containers | ✅ | Docker + docker-compose.yml | [Docker](https://www.docker.com/) |
+| Frontend + Integração | ✅ | HTML + JavaScript (CORS configurado) | — |
 
-https://projeto-backend-zw5n.onrender.com
+---
 
-URL para a API (Rota principal /).
+## 🛠️ Instruções para Execução Local
 
-Documentação (Swagger)
+Siga os passos abaixo para executar o projeto localmente (utilizando **SQLite** como banco de dados local).
 
-https://projeto-backend-zw5n.onrender.com/api-docs
+### 📋 Pré-requisitos
 
-URL da documentação completa das rotas.
+- [Node.js](https://nodejs.org/) e **npm** instalados  
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado e em execução (opcional, para testes com containers)
 
-🧩 Requisitos Técnicos e Tecnologias
+---
 
-Requisito
+### 🚀 Passo 1 — Instalar Dependências
 
-Status
+No terminal, dentro da pasta raiz do projeto, execute:
 
-Tecnologia Utilizada
-
-API em TypeScript
-
-✅ Concluído
-
-Node.js com TypeScript e Express.
-
-Persistência de Dados
-
-✅ Concluído
-
-TypeORM + PostgreSQL (Serviço permanente do Render).
-
-Autenticação
-
-✅ Concluído
-
-JSON Web Tokens (JWT) e criptografia de senha (bcrypt).
-
-Documentação
-
-✅ Concluído
-
-Swagger (swagger-jsdoc & swagger-ui-express).
-
-Continuous Deployment
-
-✅ Concluído
-
-GitHub Actions (Build da imagem e Trigger de Deploy para o Render).
-
-Containers
-
-✅ Concluído
-
-Dockerfile e docker-compose.yml para ambiente padronizado.
-
-Frontend + Integração
-
-✅ Concluído
-
-Site Estático (HTML/JS) que consome a API em nuvem (CORS configurado).
-
-🛠️ Instruções para Execução Local
-
-Para rodar a API localmente (usando o SQLite local em vez do Postgres da nuvem):
-
-Pré-requisitos
-
-Node.js e NPM instalados.
-
-Docker Desktop instalado e em execução (apenas para testar o Docker localmente).
-
-1. Instalar Dependências
-
-Abra o terminal na pasta raiz do projeto e execute:
-
+```bash
 npm install
 
+🧩 Passo 2 — Executar a API em Modo de Desenvolvimento
 
-2. Rodar a API em Modo de Desenvolvimento (Local)
-
-O servidor será iniciado em http://localhost:3000, usando a base de dados data/database.sqlite (que é criada automaticamente).
+Inicie o servidor local (porta padrão 3000):
 
 npm run dev
 
+💻 Passo 3 — Testar o Frontend Localmente
 
-3. Acessar o Frontend Localmente
+O frontend está localizado em:
+frontend/index.html
 
-O ficheiro do frontend está em frontend/index.html. Você pode:
 
-Abrir este ficheiro diretamente no seu navegador.
+🧱 Estrutura do Projeto
 
-Ajustar a API_URL_BASE no index.html para http://localhost:3000 (em vez da URL do Render) para testar o ambiente local.
+📦 projeto-backend-devops
+├── src/
+│   ├── entities/
+│   ├── routes/
+│   ├── middlewares/
+│   ├── data-source.ts
+│   └── server.ts
+├── frontend/
+│   └── index.html
+├── docker-compose.yml
+├── Dockerfile
+├── package.json
+└── README.md
 
-📅 Roteiro de Demonstração (10 Minutos)
+🚢 Deploy Automatizado
 
-Para a apresentação, o professor solicitou a demonstração de um cadastro ao vivo via Swagger.
+O pipeline de CI/CD é configurado via GitHub Actions:
 
-1. Login e Site (3 Minutos)
+Executa build e testes automatizados
 
-Acesse o link do Frontend (Site Estático).
+Cria imagem Docker padronizada
 
-Faça o Login usando uma conta já registada.
-
-Demonstre o CRUD: Mostre que a lista de professores é carregada.
-
-Cadastre rapidamente 1 novo professor através do formulário do site.
-
-Mostre a lista de professores atualizada.
-
-2. Validação da API (2 Minutos)
-
-Acesse o link do Swagger (https://projeto-backend-zw5n.onrender.com/api-docs).
-
-Obtenha o Token: Vá para a rota /login, use as credenciais de teste para obter o token JWT.
-
-Autorize: Use o token para autorizar o Swagger (clicando em "Authorize").
-
-Demonstre o GET: Vá para a rota /professores (GET) e execute-a. O professor cadastrado no item 1 deve aparecer.
-
-3. Cadastro Solicitado (3 Minutos)
-
-Ação ao Vivo: Vá para a rota /professores (POST).
-
-Cadastre o professor solicitado pelo professor (ou o que ele pedir).
-
-Confirmação: Retorne rapidamente ao Frontend (o site) e atualize a página. O novo professor deve aparecer imediatamente na lista.
-
-4. Revisão e DevOps (2 Minutos)
-
-Aponte para as URLs e o README.md no seu repositório GitHub (https://github.com/gabrielldosantos/Projeto_Backend).
-
-Explique o CD: Mencione que cada git push ativa o "robô" (GitHub Actions) que constrói o Docker e publica automaticamente no Render, garantindo o Contínuo Deployment.
-
-Mencione o Postgres: Explique que o banco de dados é persistente (Postgres), resolvendo o problema de dados que desaparecem no plano gratuito.
-
-Fim do Documento
+Realiza deploy contínuo na plataforma Render
