@@ -1,20 +1,18 @@
 version: '3.8'
 
 services:
-  # Este é o nome do nosso serviço (nossa API)
+
   api:
-    # Diz ao Docker para construir a imagem usando o Dockerfile na pasta atual (.)
+
     build: .
-    # Mapeia a porta 3000 do container para a porta 3000 da sua máquina
+
     ports:
       - "3000:3000"
-    # Esta é a parte mais importante para o SQLite
+
     volumes:
-      # Mapeia a pasta 'data' do seu computador (./data)
-      # para a pasta 'data' dentro do container (/app/data).
-      # É assim que o seu banco de dados persiste!
+
       - ./data:/app/data
-    # Define as variáveis de ambiente que o index.ts vai usar
+
     environment:
       - PORT=3000
       - JWT_SECRET=sua-chave-secreta-super-forte-12345

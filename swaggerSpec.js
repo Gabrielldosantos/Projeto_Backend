@@ -7,11 +7,11 @@ const swaggerSpec = {
     },
     servers: [
         {
-            url: `https://projeto-backend-zw5n.onrender.com`, // URL de Produção no Render
+            url: `https://projeto-backend-zw5n.onrender.com`,
             description: "Servidor de Produção (Cloud)",
         },
         {
-            url: `http://localhost:3000`, // URL de Desenvolvimento Local
+            url: `http://localhost:3000`,
             description: "Servidor Local (Desenvolvimento)",
         },
     ],
