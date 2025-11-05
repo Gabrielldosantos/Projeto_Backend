@@ -28,7 +28,7 @@ A tabela abaixo apresenta as tecnologias utilizadas, o status dos requisitos e l
 |------------|:------:|----------------------|----------------------------|
 | API em TypeScript | ✅ | Node.js + TypeScript + Express.js | 
 | Persistência de Dados | ✅ | TypeORM + PostgreSQL (Render) | 
-| Autenticação | ✅ | JWT + Criptografia com bcrypt | [JWT](https://jwt.io/) |
+| Autenticação | ✅ | JWT + Criptografia com bcrypt | 
 | Documentação da API | ✅ | Swagger (swagger-jsdoc & swagger-ui-express) |
 | Continuous Deployment | ✅ | GitHub Actions (build e deploy automático) | 
 | Containers | ✅ | Docker + docker-compose.yml | 
